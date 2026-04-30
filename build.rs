@@ -7,11 +7,14 @@ mod build_tesseract {
     use std::fs;
     use std::path::{Path, PathBuf};
 
-    // Use specific release versions for stability
+    // Use specific release versions for stability.
+    // Bumped to Tesseract 5.5.0 (latest stable) per requirement Edge —
+    // 5.3.4 era la versione originale di tesseract-rs upstream.
+    // Leptonica 1.85.0 (latest), compatibile con Tesseract >= 5.4.
     const LEPTONICA_URL: &str =
-        "https://github.com/DanBloomberg/leptonica/archive/refs/tags/1.84.1.zip";
+        "https://github.com/DanBloomberg/leptonica/archive/refs/tags/1.85.0.zip";
     const TESSERACT_URL: &str =
-        "https://github.com/tesseract-ocr/tesseract/archive/refs/tags/5.3.4.zip";
+        "https://github.com/tesseract-ocr/tesseract/archive/refs/tags/5.5.0.zip";
 
     fn get_custom_out_dir() -> PathBuf {
         if cfg!(target_os = "macos") {
