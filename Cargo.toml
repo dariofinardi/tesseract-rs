@@ -41,6 +41,12 @@ zip = { version = "2.4.2", optional = true }
 [features]
 default = ["build-tesseract"]
 build-tesseract = ["cc", "glob", "cmake", "reqwest", "zip"]
+# Builda Leptonica + Tesseract come DLL (Win) / .so / .dylib invece
+# di static lib. Utile per app desktop (Tauri ecc.) che vogliono
+# spedire le dipendenze native come file separati nel bundle, non
+# inglobate nell'eseguibile. Default OFF: il caso standard e' single
+# rlib self-contained.
+dynamic-libs = []
 
 [package.metadata.docs.rs]
 features = ["docs-only"]

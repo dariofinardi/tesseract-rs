@@ -35,6 +35,10 @@ mod build_tesseract {
             Ok(other)     => Box::leak(other.to_string().into_boxed_str()),
             Err(_)        => "unknown_arch",
         };
+        // Sub-subdir per build mode: cache static e dynamic non possono
+        // coesistere nello stesso path perche' il .lib dell'una si
+        // sovrappone all'altra (build_or_use_cached riusa il file).
+        let mode_subdir = if cfg!(feature = "dynamic-libs") { "dynamic" } else { "static" };
 
         if cfg!(target_os = "macos") {
             let home_dir = env::var("HOME").unwrap_or_else(|_| {
@@ -47,13 +51,14 @@ mod build_tesseract {
                 .join("Application Support")
                 .join("tesseract-rs")
                 .join(arch_subdir)
+                .join(mode_subdir)
         } else if cfg!(target_os = "linux") {
             let home_dir = env::var("HOME").unwrap_or_else(|_| {
                 env::var("USER")
                     .map(|user| format!("/home/{}", user))
                     .expect("Neither HOME nor USER environment variable set")
             });
-            PathBuf::from(home_dir).join(".tesseract-rs").join(arch_subdir)
+            PathBuf::from(home_dir).join(".tesseract-rs").join(arch_subdir).join(mode_subdir)
         } else if cfg!(target_os = "windows") {
             env::var("APPDATA")
                 .or_else(|_| env::var("USERPROFILE").map(|p| format!("{}\\AppData\\Roaming", p)))
@@ -61,6 +66,7 @@ mod build_tesseract {
                 .expect("Neither APPDATA nor USERPROFILE environment variable set")
                 .join("tesseract-rs")
                 .join(arch_subdir)
+                .join(mode_subdir)
         } else {
             panic!("Unsupported operating system");
         }
@@ -71,6 +77,15 @@ mod build_tesseract {
         std::fs::create_dir_all(&custom_out_dir).expect("Failed to create custom out directory");
 
         println!("cargo:warning=custom_out_dir: {:?}", custom_out_dir);
+
+        // Feature `dynamic-libs`: builda Leptonica + Tesseract come DLL
+        // (Windows) o .so / .dylib (unix). L'rlib di tesseract-rs linka
+        // contro le import lib (.lib) → simboli risolti a runtime dalle
+        // .dll. L'app host (es. Tauri Edge) deve copiare le .dll accanto
+        // all'eseguibile o in PATH.
+        let build_shared = cfg!(feature = "dynamic-libs");
+        let shared_label = if build_shared { "ON" } else { "OFF" };
+        println!("cargo:warning=BUILD_SHARED_LIBS={shared_label} (feature dynamic-libs={build_shared})");
 
         let cache_dir = custom_out_dir.join("cache");
 
@@ -175,7 +190,7 @@ mod build_tesseract {
                     .define("CMAKE_POLICY_VERSION_MINIMUM", "3.5")
                     .define("CMAKE_BUILD_TYPE", "Release")
                     .define("BUILD_PROG", "OFF")
-                    .define("BUILD_SHARED_LIBS", "OFF")
+                    .define("BUILD_SHARED_LIBS", shared_label)
                     .define("ENABLE_ZLIB", "OFF")
                     .define("ENABLE_PNG", "OFF")
                     .define("ENABLE_JPEG", "OFF")
@@ -247,7 +262,7 @@ mod build_tesseract {
                     .define("CMAKE_POLICY_VERSION_MINIMUM", "3.5")
                     .define("CMAKE_BUILD_TYPE", "Release")
                     .define("BUILD_TRAINING_TOOLS", "OFF")
-                    .define("BUILD_SHARED_LIBS", "OFF")
+                    .define("BUILD_SHARED_LIBS", shared_label)
                     .define("DISABLE_ARCHIVE", "ON")
                     .define("DISABLE_CURL", "ON")
                     .define("DISABLE_OPENCL", "ON")
@@ -623,14 +638,18 @@ mod build_tesseract {
             install_dir.join("lib").display()
         );
 
-        println!("cargo:rustc-link-lib=static={}", name);
+        // Con feature `dynamic-libs` linkiamo come dylib (= la .lib in
+        // `lib/` e' una IMPORT lib, i symbol veri stanno nella .dll in
+        // `bin/` che serve a runtime). Senza feature linkiamo statico.
+        let link_kind = if cfg!(feature = "dynamic-libs") { "dylib" } else { "static" };
+        println!("cargo:rustc-link-lib={}={}", link_kind, name);
 
         // For Windows, try alternative names if primary fails — bumped a
         // tesseract55 / leptonica-1.85.0 (vedi const URL bumps in cima).
         if cfg!(target_os = "windows") && name == "leptonica" {
-            println!("cargo:rustc-link-lib=static=leptonica-1.85.0");
+            println!("cargo:rustc-link-lib={}=leptonica-1.85.0", link_kind);
         } else if cfg!(target_os = "windows") && name == "tesseract" {
-            println!("cargo:rustc-link-lib=static=tesseract55");
+            println!("cargo:rustc-link-lib={}=tesseract55", link_kind);
         }
     }
 }
