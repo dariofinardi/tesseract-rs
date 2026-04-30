@@ -123,10 +123,21 @@ mod build_tesseract {
                         .expect("Failed to write makefile.static");
                 }
 
-                // Configure build tools
+                // Configure build tools — Windows
+                // Su ARM64 (Snapdragon X Elite e simili) NMake con cl.exe
+                // host può produrre binari sbagliati se l'arch dev prompt non
+                // matcha. Usiamo il VS generator + GENERATOR_PLATFORM esplicito
+                // basato su target_arch della build, così la build è coerente
+                // sia su x86_64 sia su ARM64 host.
+                // Configure build tools — Windows
+                // Su VS 18 (Snapdragon X Elite + VS 2026 preview) cmake-rs
+                // 0.1.54 NON sa generare "Visual Studio 18 ...", e cmake 4.0.3
+                // ha solo "Visual Studio 17 2022" come massimo. Soluzione:
+                // usare NMake Makefiles + chiamare la build da una shell con
+                // VsDevCmd.bat -arch=<host_arch> caricato (così cl.exe del
+                // toolset corretto è in PATH e cmake lo prende).
                 if cfg!(target_os = "windows") {
-                    // Use NMake on Windows for better compatibility
-                    if let Ok(_vs_install_dir) = env::var("VSINSTALLDIR") {
+                    if std::env::var("VSINSTALLDIR").is_ok() {
                         leptonica_config.generator("NMake Makefiles");
                     }
                 }
@@ -193,10 +204,12 @@ mod build_tesseract {
                     .expect("Failed to write CMakeLists.txt");
 
                 let mut tesseract_config = Config::new(&tesseract_dir);
-                // Configure build tools
+                // Configure build tools — vedi nota su leptonica_config sopra:
+                // VS generator + GENERATOR_PLATFORM esplicito anziché NMake,
+                // per build coerente su ARM64 e x86_64 host.
                 if cfg!(target_os = "windows") {
-                    // Use NMake on Windows for better compatibility
-                    if let Ok(_vs_install_dir) = env::var("VSINSTALLDIR") {
+                    // Stesso pattern di leptonica: NMake + VsDevCmd loaded.
+                    if std::env::var("VSINSTALLDIR").is_ok() {
                         tesseract_config.generator("NMake Makefiles");
                     }
                 }
@@ -505,14 +518,16 @@ mod build_tesseract {
                     "leptonica.lib".to_string(),
                     "libleptonica.lib".to_string(),
                     "leptonica-static.lib".to_string(),
+                    "leptonica-1.85.0.lib".to_string(),
                     "leptonica-1.84.1.lib".to_string(),
                 ],
                 "tesseract" => vec![
                     "tesseract.lib".to_string(),
                     "libtesseract.lib".to_string(),
                     "tesseract-static.lib".to_string(),
-                    "tesseract53.lib".to_string(),
+                    "tesseract55.lib".to_string(),
                     "tesseract54.lib".to_string(),
+                    "tesseract53.lib".to_string(),
                 ],
                 _ => vec![format!("{}.lib", name)],
             }
@@ -589,11 +604,12 @@ mod build_tesseract {
 
         println!("cargo:rustc-link-lib=static={}", name);
 
-        // For Windows, try alternative names if primary fails
+        // For Windows, try alternative names if primary fails — bumped a
+        // tesseract55 / leptonica-1.85.0 (vedi const URL bumps in cima).
         if cfg!(target_os = "windows") && name == "leptonica" {
-            println!("cargo:rustc-link-lib=static=leptonica-1.84.1");
+            println!("cargo:rustc-link-lib=static=leptonica-1.85.0");
         } else if cfg!(target_os = "windows") && name == "tesseract" {
-            println!("cargo:rustc-link-lib=static=tesseract53");
+            println!("cargo:rustc-link-lib=static=tesseract55");
         }
     }
 }
