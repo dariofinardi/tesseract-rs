@@ -16,7 +16,26 @@ mod build_tesseract {
     const TESSERACT_URL: &str =
         "https://github.com/tesseract-ocr/tesseract/archive/refs/tags/5.5.0.zip";
 
+    /// Cache + install dir per Leptonica/Tesseract built. Subdir per arch
+    /// (aarch64 / x86_64 / ...) cosi' multi-target builds non si pestano.
+    /// Se in passato hai usato la versione senza arch, il vecchio cache
+    /// dir resta abbandonato in `~/.../tesseract-rs/` e puoi cancellarlo
+    /// manualmente.
+    ///
+    /// IMPORTANTE: il build script gira come binario host. Usare
+    /// `cfg!(target_arch=...)` darebbe l'arch dell'HOST, non del target
+    /// Rust. Per cross-compile (es. host ARM64 -> target x86_64), si
+    /// deve leggere `CARGO_CFG_TARGET_ARCH` settato da cargo a runtime
+    /// del build script.
     fn get_custom_out_dir() -> PathBuf {
+        let arch_subdir = match env::var("CARGO_CFG_TARGET_ARCH").as_deref() {
+            Ok("aarch64") => "aarch64",
+            Ok("x86_64")  => "x86_64",
+            Ok("x86")     => "x86",
+            Ok(other)     => Box::leak(other.to_string().into_boxed_str()),
+            Err(_)        => "unknown_arch",
+        };
+
         if cfg!(target_os = "macos") {
             let home_dir = env::var("HOME").unwrap_or_else(|_| {
                 env::var("USER")
@@ -27,19 +46,21 @@ mod build_tesseract {
                 .join("Library")
                 .join("Application Support")
                 .join("tesseract-rs")
+                .join(arch_subdir)
         } else if cfg!(target_os = "linux") {
             let home_dir = env::var("HOME").unwrap_or_else(|_| {
                 env::var("USER")
                     .map(|user| format!("/home/{}", user))
                     .expect("Neither HOME nor USER environment variable set")
             });
-            PathBuf::from(home_dir).join(".tesseract-rs")
+            PathBuf::from(home_dir).join(".tesseract-rs").join(arch_subdir)
         } else if cfg!(target_os = "windows") {
             env::var("APPDATA")
                 .or_else(|_| env::var("USERPROFILE").map(|p| format!("{}\\AppData\\Roaming", p)))
                 .map(PathBuf::from)
                 .expect("Neither APPDATA nor USERPROFILE environment variable set")
                 .join("tesseract-rs")
+                .join(arch_subdir)
         } else {
             panic!("Unsupported operating system");
         }
