@@ -219,6 +219,28 @@ impl ResultIterator {
         Ok(unsafe { TessResultIteratorNext(*handle, level as c_int) != 0 })
     }
 
+    /// Checks if the current iterator is at the beginning of the specified
+    /// level (e.g. start of a new BLOCK/PARA/TEXTLINE/WORD).
+    ///
+    /// In Tesseract C++ `ResultIterator` extends `PageIterator`, so the
+    /// `TessPageIteratorIsAtBeginningOf` FFI function works correctly when
+    /// passed a `ResultIterator` handle (upcast inheritance).
+    ///
+    /// Used by `TesseractAPI::get_hierarchy` to detect block/paragraph/line
+    /// boundaries while walking the recognition result word-by-word.
+    pub fn is_at_beginning_of(&self, level: TessPageIteratorLevel) -> Result<bool> {
+        let handle = self
+            .handle
+            .lock()
+            .map_err(|_| TesseractError::MutexLockError)?;
+        // SAFETY: handle is a TessResultIterator* which extends
+        // TessPageIterator* in the underlying C++ API; the FFI function
+        // TessPageIteratorIsAtBeginningOf accepts both because of inheritance.
+        Ok(unsafe {
+            crate::page_iterator::TessPageIteratorIsAtBeginningOf(*handle, level as c_int) != 0
+        })
+    }
+
     /// Gets the current word from the iterator with its bounding box and confidence.
     ///
     /// # Returns

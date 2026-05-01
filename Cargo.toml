@@ -24,11 +24,18 @@ exclude = ["tessdata/*", "third_party/*"]
 [dependencies]
 libc = "0.2.174"
 thiserror = "1.0.69"
+# Serde per derivazione Serialize/Deserialize dei tipi `hierarchy.rs`
+# (BoundingBox, TesseractWord/TextLine/Paragraph/Block/Hierarchy).
+# Necessario per consumer che salvano l'OCR su disco (sidecar JSON,
+# audit log) o lo trasportano via IPC (Tauri commands → frontend JSON).
+serde = { version = "1", features = ["derive"] }
 
 [dev-dependencies]
 image = "0.25.6"
 imageproc = "0.25.0"
 criterion = { version = "0.7.0", features = ["html_reports"] }
+# JSON serialization per i test di hierarchy (round-trip serde)
+serde_json = "1"
 
 [build-dependencies]
 cc = { version = "1.2.30", optional = true }

@@ -140,3 +140,8 @@ pub use enums::{
 };
 mod api;
 pub use api::TesseractAPI;
+mod hierarchy;
+pub use hierarchy::{
+    BoundingBox, TesseractBlock, TesseractHierarchy, TesseractParagraph, TesseractTextLine,
+    TesseractWord,
+};
