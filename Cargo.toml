@@ -1,0 +1,46 @@
+[package]
+name = "tesseract-rs"
+version = "0.1.19"
+edition = "2021"
+authors = ["Cafer Can Gündoğdu <cafercangundogdu@gmail.com>"]
+description = "Rust bindings for Tesseract OCR with optional built-in compilation"
+license = "MIT"
+repository = "https://github.com/cafercangundogdu/tesseract-rs"
+documentation = "https://docs.rs/tesseract-rs"
+readme = "README.md"
+keywords = ["tesseract", "ocr", "bindings", "computer-vision", "text-recognition"]
+categories = ["external-ffi-bindings", "computer-vision", "text-processing"]
+build = "build.rs"
+links = "tesseract"
+rust-version = "1.83.0"
+exclude = [
+    "tessdata/*",
+    "third_party/*",
+]
+
+[dependencies]
+libc = "0.2.169"
+thiserror = "1.0.69"
+
+[dev-dependencies]
+image = "0.25.5"
+imageproc = "0.25.0"
+
+[build-dependencies]
+cc = { version = "1.2.6", optional = true }
+glob = { version = "0.3.2", optional = true }
+cmake = { version = "0.1.52", optional = true }
+reqwest = { version = "0.12.12", features = ["blocking"], optional = true }
+zip = { version = "2.2.2", optional = true }
+
+[features]
+default = ["build-tesseract"]
+build-tesseract = ["cc", "glob", "cmake", "reqwest", "zip"]
+
+[package.metadata.docs.rs]
+features = ["docs-only"]
+rustdoc-args = ["--cfg", "docsrs"]
+
+[lib]
+name = "tesseract_rs"
+crate-type = ["lib"]
