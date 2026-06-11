@@ -822,39 +822,41 @@ impl TesseractAPI {
     ///
     /// # Returns
     ///
-    /// Returns the processed text as a string.
+    /// Returns the recognized text. For single-page images this is equivalent
+    /// to calling `get_utf8_text()` after recognition. For multi-page TIFF/PDF
+    /// inputs only the last page text is returned; use a `TessResultRenderer`
+    /// if you need per-page output.
     pub fn process_pages(
         &self,
         filename: &str,
         retry_config: Option<&str>,
         timeout_millisec: i32,
     ) -> Result<String> {
-        let filename = CString::new(filename).unwrap();
+        let filename_cstr = CString::new(filename).unwrap();
         let retry_config_cstring = retry_config.map(|s| CString::new(s).unwrap());
         let retry_config_ptr = retry_config_cstring
             .as_ref()
             .map_or(std::ptr::null(), |rc| rc.as_ptr());
-        let handle = self
-            .handle
-            .lock()
-            .map_err(|_| TesseractError::MutexLockError)?;
-        let result = unsafe {
-            TessBaseAPIProcessPages(
-                *handle,
-                filename.as_ptr(),
-                retry_config_ptr,
-                timeout_millisec,
-                std::ptr::null_mut(), // renderer
-            )
-        };
-        if result.is_null() {
-            Err(TesseractError::ProcessPagesError)
-        } else {
-            let c_str = unsafe { CStr::from_ptr(result) };
-            let output = c_str.to_str()?.to_owned();
-            unsafe { TessDeleteText(result) };
-            Ok(output)
-        }
+        {
+            let handle = self
+                .handle
+                .lock()
+                .map_err(|_| TesseractError::MutexLockError)?;
+            // TessBaseAPIProcessPages returns BOOL (non-zero = success).
+            let ok = unsafe {
+                TessBaseAPIProcessPages(
+                    *handle,
+                    filename_cstr.as_ptr(),
+                    retry_config_ptr,
+                    timeout_millisec,
+                    std::ptr::null_mut(), // renderer — text retrieved via get_utf8_text below
+                )
+            };
+            if ok == 0 {
+                return Err(TesseractError::ProcessPagesError);
+            }
+        } // mutex released before re-entrant call
+        self.get_utf8_text()
     }
 
     /// Gets the initial languages as a string.
@@ -1567,7 +1569,7 @@ extern "C" {
         retry_config: *const c_char,
         timeout_millisec: c_int,
         renderer: *mut c_void,
-    ) -> *mut c_char;
+    ) -> c_int; // C API returns BOOL (int), not char*
 
     fn TessBaseAPIGetInputName(handle: *mut c_void) -> *const c_char;
     fn TessBaseAPISetInputName(handle: *mut c_void, name: *const c_char);

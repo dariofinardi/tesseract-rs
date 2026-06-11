@@ -253,7 +253,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Spawn multiple threads for parallel OCR processing
     for _ in 0..3 {
-        let api_clone = api.clone(); // Clones the API with all configurations
+        let api_clone = api.try_clone()?; // Clone the configured API for this thread
         let image_data = Arc::clone(&image_data);
 
         let handle = thread::spawn(move || {
