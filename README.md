@@ -1,23 +1,58 @@
-# tesseract-rs
+# tesseract-rs — SemplificaAI fork (`semplifica` branch)
+
+> **Naming note** — this repository is named `tesseract-rs` (the GitHub fork name matches
+> the upstream). The crate published to crates.io from this branch is **`tesseract-55-rs`**
+> because `tesseract-rs` on crates.io is already taken by the upstream author
+> (Cafer Can Gündoğdu, v0.2.0). The Rust library name (`[lib] name`) stays `tesseract_rs`,
+> so existing `use tesseract_rs::` imports work unchanged — only the `Cargo.toml`
+> dependency key changes from `tesseract-rs` to `tesseract-55-rs`.
+>
+> **For most users**: depend on [`tesseract5-rs`](https://github.com/SemplificaAI/Tesseract5-rs)
+> instead — it re-exports this crate's full API and adds a high-level `Ocr5Engine` wrapper.
 
 `tesseract-rs` is a Rust binding for Tesseract OCR with built-in compilation of Tesseract and Leptonica libraries. This project aims to provide a safe and idiomatic Rust interface to Tesseract's functionality while handling the complexity of compiling the underlying C++ libraries.
 
+This is the **SemplificaAI fork** of [cafercangundogdu/tesseract-rs](https://github.com/cafercangundogdu/tesseract-rs), maintained on the `semplifica` branch. See [Changes from upstream](#changes-from-upstream) for the full diff.
+
 ## Features
 
-- Safe Rust bindings for Tesseract OCR
-- Built-in compilation of Tesseract and Leptonica
+- Safe Rust bindings for Tesseract OCR 5.5 + Leptonica 1.85
+- Built-in compilation of Tesseract and Leptonica (no system install needed)
 - Automatic download of Tesseract training data (English and Turkish)
 - High-level Rust API for common OCR tasks
-- Caching of compiled libraries for faster subsequent builds
-- Support for multiple operating systems (Linux, macOS, Windows)
+- Per-architecture build cache (`%APPDATA%/tesseract-rs/<arch>/`) — no host/cross conflicts
+- Support for multiple operating systems (Linux, macOS, Windows, **ARM64/Snapdragon X Elite**)
+- **`TesseractHierarchy`** — word-level bounding boxes in a nested Rust struct (block → paragraph → line → word)
+- **`dynamic-libs` feature** — build Tesseract + Leptonica as shared libraries for app bundling
+
+## Changes from upstream
+
+This fork extends [cafercangundogdu/tesseract-rs](https://github.com/cafercangundogdu/tesseract-rs)
+with the following changes (branch `semplifica`):
+
+| Commit | Change |
+|---|---|
+| `ab37bf8` | Tesseract 5.3.4 → **5.5.0**, Leptonica 1.84.1 → **1.85.0** |
+| `e51751b` | **ARM64 / Snapdragon X Elite** — correct lib names + linker flags for `aarch64-pc-windows-msvc` |
+| `bbb0b1d` | **Per-arch build cache** — `<base>/<arch>/static/` prevents host/cross conflicts |
+| `0819eb8` | **`dynamic-libs` feature** — DLL/`.so` output for desktop app bundling (Tauri, etc.) |
+| `c981751` | **`TesseractHierarchy` + `get_hierarchy()`** — nested block/paragraph/line/word structs with `BoundingBox`, serializable via `serde` |
+| `da080d2` | UB fix in `process_pages()` — `TessBaseAPIProcessPages` returns `BOOL` (`c_int`), not `char *` |
 
 ## Installation
 
-Add this to your `Cargo.toml`:
+Add this to your `Cargo.toml` (crates.io, published as `tesseract-55-rs`):
 
 ```toml
 [dependencies]
-tesseract-rs = { version = "0.1.20", features = ["build-tesseract"] }
+tesseract-55-rs = { version = "0.2.0", features = ["build-tesseract"] }
+```
+
+Or depend on the git source directly:
+
+```toml
+[dependencies]
+tesseract-rs = { git = "https://github.com/SemplificaAI/tesseract-rs", branch = "semplifica", features = ["build-tesseract"] }
 ```
 
 For development and testing, you'll also need these dependencies:
