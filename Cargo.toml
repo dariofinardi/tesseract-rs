@@ -1,5 +1,5 @@
 [package]
-name = "tesseract-rs"
+name = "tesseract-55-rs"
 version = "0.2.0"
 edition = "2021"
 authors = [
@@ -11,7 +11,7 @@ description = "Safe Rust bindings for Tesseract OCR 5.5 with built-in compilatio
 license = "MIT"
 repository = "https://github.com/SemplificaAI/tesseract-rs"
 homepage = "https://github.com/SemplificaAI/tesseract-rs"
-documentation = "https://docs.rs/tesseract-rs"
+documentation = "https://docs.rs/tesseract-55-rs"
 readme = "README.md"
 keywords = [
     "tesseract",
