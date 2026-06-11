@@ -1,19 +1,23 @@
 [package]
-name = "tesseract-rs"
+name = "tesseract5-rs"
 version = "0.2.0"
 edition = "2021"
-authors = ["Cafer Can Gündoğdu <cafercangundogdu@gmail.com>"]
-description = "Rust bindings for Tesseract OCR with optional built-in compilation"
+authors = [
+    "Dario Finardi <d.finardi@semplifica.ai>",
+    "Semplifica s.r.l.",
+]
+description = "Safe Rust bindings for Tesseract OCR 5.5 with built-in compilation of Tesseract + Leptonica. Exposes full word-level hierarchy (block/paragraph/line/word) with bounding boxes."
 license = "MIT"
-repository = "https://github.com/cafercangundogdu/tesseract-rs"
-documentation = "https://docs.rs/tesseract-rs"
+repository = "https://github.com/SemplificaAI/Tesseract5-rs"
+homepage = "https://github.com/SemplificaAI/Tesseract5-rs"
+documentation = "https://docs.rs/tesseract5-rs"
 readme = "README.md"
 keywords = [
     "tesseract",
     "ocr",
-    "bindings",
-    "computer-vision",
     "text-recognition",
+    "bounding-box",
+    "document",
 ]
 categories = ["external-ffi-bindings", "computer-vision", "text-processing"]
 build = "build.rs"

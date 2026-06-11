@@ -172,10 +172,8 @@ mod build_tesseract {
                 // usare NMake Makefiles + chiamare la build da una shell con
                 // VsDevCmd.bat -arch=<host_arch> caricato (così cl.exe del
                 // toolset corretto è in PATH e cmake lo prende).
-                if cfg!(target_os = "windows") {
-                    if std::env::var("VSINSTALLDIR").is_ok() {
-                        leptonica_config.generator("NMake Makefiles");
-                    }
+                if cfg!(target_os = "windows") && std::env::var("VSINSTALLDIR").is_ok() {
+                    leptonica_config.generator("NMake Makefiles");
                 }
 
                 // Only use sccache if not in CI

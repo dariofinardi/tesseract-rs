@@ -153,10 +153,7 @@ impl TesseractAPI {
 
         loop {
             // Per ogni word: leggi text/bbox/conf e gestisci boundary
-            let word_text = match it.get_utf8_text(TessPageIteratorLevel::RIL_WORD) {
-                Ok(t)  => t,
-                Err(_) => String::new(), // word vuota = noise, skip
-            };
+            let word_text = it.get_utf8_text(TessPageIteratorLevel::RIL_WORD).unwrap_or_default();
             let word_text_trim = word_text.trim();
 
             // Se la word ha contenuto, processa; altrimenti skip ma
