@@ -1,4 +1,4 @@
-# tesseract-rs — SemplificaAI fork (`semplifica` branch)
+# tesseract-rs — dariofinardi fork (`semplifica` branch)
 
 > **Naming note** — this repository is named `tesseract-rs` (the GitHub fork name matches
 > the upstream). The crate published to crates.io from this branch is **`tesseract-55-rs`**
@@ -7,12 +7,12 @@
 > so existing `use tesseract_rs::` imports work unchanged — only the `Cargo.toml`
 > dependency key changes from `tesseract-rs` to `tesseract-55-rs`.
 >
-> **For most users**: depend on [`tesseract5-rs`](https://github.com/SemplificaAI/Tesseract5-rs)
+> **For most users**: depend on [`tesseract5-rs`](https://github.com/dariofinardi/Tesseract5-rs)
 > instead — it re-exports this crate's full API and adds a high-level `Ocr5Engine` wrapper.
 
 `tesseract-rs` is a Rust binding for Tesseract OCR with built-in compilation of Tesseract and Leptonica libraries. This project aims to provide a safe and idiomatic Rust interface to Tesseract's functionality while handling the complexity of compiling the underlying C++ libraries.
 
-This is the **SemplificaAI fork** of [cafercangundogdu/tesseract-rs](https://github.com/cafercangundogdu/tesseract-rs), maintained on the `semplifica` branch. See [Changes from upstream](#changes-from-upstream) for the full diff.
+This is the **dariofinardi fork** of [cafercangundogdu/tesseract-rs](https://github.com/cafercangundogdu/tesseract-rs), maintained on the `semplifica` branch. See [Changes from upstream](#changes-from-upstream) for the full diff.
 
 ## Features
 
@@ -52,7 +52,7 @@ Or depend on the git source directly:
 
 ```toml
 [dependencies]
-tesseract-rs = { git = "https://github.com/SemplificaAI/tesseract-rs", branch = "semplifica", features = ["build-tesseract"] }
+tesseract-rs = { git = "https://github.com/dariofinardi/tesseract-rs", branch = "semplifica", features = ["build-tesseract"] }
 ```
 
 For development and testing, you'll also need these dependencies:

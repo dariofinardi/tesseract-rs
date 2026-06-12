@@ -5,12 +5,11 @@ edition = "2021"
 authors = [
     "Cafer Can Gündoğdu <cafercangundogdu@gmail.com>",
     "Dario Finardi <d.finardi@semplifica.ai>",
-    "Semplifica s.r.l.",
 ]
 description = "Safe Rust bindings for Tesseract OCR 5.5 with built-in compilation of Tesseract + Leptonica. Exposes full word-level hierarchy (block/paragraph/line/word) with bounding boxes."
 license = "MIT"
-repository = "https://github.com/SemplificaAI/tesseract-rs"
-homepage = "https://github.com/SemplificaAI/tesseract-rs"
+repository = "https://github.com/dariofinardi/tesseract-rs"
+homepage = "https://github.com/dariofinardi/tesseract-rs"
 documentation = "https://docs.rs/tesseract-55-rs"
 readme = "README.md"
 keywords = [
