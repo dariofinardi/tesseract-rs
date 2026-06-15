@@ -1,7 +1,7 @@
-# tesseract-rs — dariofinardi fork (`semplifica` branch)
+# tesseract-rs — dariofinardi fork
 
 > **Naming note** — this repository is named `tesseract-rs` (the GitHub fork name matches
-> the upstream). The crate published to crates.io from this branch is **`tesseract-55-rs`**
+> the upstream). The crate published to crates.io from this fork is **`tesseract-55-rs`**
 > because `tesseract-rs` on crates.io is already taken by the upstream author
 > (Cafer Can Gündoğdu, v0.2.0). The Rust library name (`[lib] name`) stays `tesseract_rs`,
 > so existing `use tesseract_rs::` imports work unchanged — only the `Cargo.toml`
@@ -12,7 +12,7 @@
 
 `tesseract-rs` is a Rust binding for Tesseract OCR with built-in compilation of Tesseract and Leptonica libraries. This project aims to provide a safe and idiomatic Rust interface to Tesseract's functionality while handling the complexity of compiling the underlying C++ libraries.
 
-This is the **dariofinardi fork** of [cafercangundogdu/tesseract-rs](https://github.com/cafercangundogdu/tesseract-rs), maintained on the `semplifica` branch. See [Changes from upstream](#changes-from-upstream) for the full diff.
+This is the **dariofinardi fork** of [cafercangundogdu/tesseract-rs](https://github.com/cafercangundogdu/tesseract-rs). See [Changes from upstream](#changes-from-upstream) for the full diff.
 
 ## Features
 
@@ -28,7 +28,7 @@ This is the **dariofinardi fork** of [cafercangundogdu/tesseract-rs](https://git
 ## Changes from upstream
 
 This fork extends [cafercangundogdu/tesseract-rs](https://github.com/cafercangundogdu/tesseract-rs)
-with the following changes (branch `semplifica`):
+with the following changes:
 
 | Commit | Change |
 |---|---|
@@ -52,7 +52,7 @@ Or depend on the git source directly:
 
 ```toml
 [dependencies]
-tesseract-rs = { git = "https://github.com/dariofinardi/tesseract-rs", branch = "semplifica", features = ["build-tesseract"] }
+tesseract-rs = { git = "https://github.com/dariofinardi/tesseract-rs", features = ["build-tesseract"] }
 ```
 
 For development and testing, you'll also need these dependencies:
