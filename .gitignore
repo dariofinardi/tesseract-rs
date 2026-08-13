@@ -16,4 +16,9 @@
 
 # Node.js dependencies
 /node_modules
-package-lock.jsonCargo.lock
+package-lock.json
+
+# Cargo.lock non si versiona per un crate libreria: lo decide il binario
+# che lo consuma. Era gia' l'intento del commit aabe7e8, ma la riga
+# precedente aveva perso la newline e i due pattern si erano fusi.
+Cargo.lock
