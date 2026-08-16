@@ -18,11 +18,11 @@ use std::path::PathBuf;
 use tesseract_rs::TesseractAPI;
 
 /// Risale dal `CARGO_MANIFEST_DIR` di tesseract-rs (=
-/// `Semplifica.Tesseract/tesseract-rs/`) alla root del workspace
+/// `df-Tesseract/tesseract-rs/`) alla root del workspace
 /// (`/c/Progetti/anonimator/`) e poi a `tests/`.
 fn workspace_tests_dir() -> Option<PathBuf> {
     let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    // ../../tests   (Semplifica.Tesseract/tesseract-rs -> ../.. = workspace root)
+    // ../../tests   (df-Tesseract/tesseract-rs -> ../.. = workspace root)
     let candidate = manifest.parent()?.parent()?.join("tests");
     if candidate.is_dir() { Some(candidate) } else { None }
 }
